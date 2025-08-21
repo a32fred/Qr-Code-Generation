@@ -1,14 +1,25 @@
 # Dockerfile simples - single stage
 FROM golang:1.21
 
+# Configurar DNS público para resolver problemas de conectividade
+RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
+    echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+
 WORKDIR /app
 
-# Copiar todos os arquivos
+# Copiar go.mod primeiro para cache
+COPY go.mod ./
+
+# Configurar proxy Go e baixar dependências
+ENV GOPROXY=https://proxy.golang.org,direct
+ENV GOSUMDB=sum.golang.org
+RUN go mod download
+
+# Copiar resto dos arquivos
 COPY . .
 
-# Baixar dependências e compilar
-RUN go mod download && \
-    CGO_ENABLED=1 go build -o qr-api ./qr_api_backend.go
+# Compilar aplicação
+RUN CGO_ENABLED=1 go build -o qr-api ./qr_api_backend.go
 
 # Criar diretórios
 RUN mkdir -p data logs
