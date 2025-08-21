@@ -19,18 +19,20 @@ RUN CGO_ENABLED=1 GOOS=linux go build \
     -a -installsuffix cgo \
     -o main ./qr_api_backend.go
 
-# Estágio final - imagem mínima
-FROM alpine:latest
+# Estágio final - imagem Ubuntu
+FROM ubuntu:22.04
 
-# Configurar mirror brasileiro e instalar dependências
-RUN echo "https://mirror.ufro.cl/alpine/v3.22/main" > /etc/apk/repositories && \
-    echo "https://mirror.ufro.cl/alpine/v3.22/community" >> /etc/apk/repositories && \
-    apk update && \
-    apk --no-cache add ca-certificates sqlite tzdata wget
+# Instalar dependências
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    sqlite3 \
+    tzdata \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
 # Criar usuário não-root
-RUN addgroup -g 1001 -S app && \
-    adduser -S -D -H -u 1001 -h /app -s /sbin/nologin -G app -g app app
+RUN groupadd -g 1001 app && \
+    useradd -r -u 1001 -g app app
 
 WORKDIR /app
 
