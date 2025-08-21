@@ -22,8 +22,11 @@ RUN CGO_ENABLED=1 GOOS=linux go build \
 # Estágio final - imagem mínima
 FROM alpine:latest
 
-# Instalar dependências de runtime
-RUN apk --no-cache add ca-certificates sqlite tzdata wget
+# Configurar mirror brasileiro e instalar dependências
+RUN echo "https://mirror.ufro.cl/alpine/v3.22/main" > /etc/apk/repositories && \
+    echo "https://mirror.ufro.cl/alpine/v3.22/community" >> /etc/apk/repositories && \
+    apk update && \
+    apk --no-cache add ca-certificates sqlite tzdata wget
 
 # Criar usuário não-root
 RUN addgroup -g 1001 -S app && \
