@@ -14,8 +14,8 @@ tower-http = { version = "0.5", features = ["cors", "trace"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
-# Database
-sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite", "chrono", "uuid"] }
+# Database (with bundled SQLite to avoid runtime deps)
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite", "chrono", "uuid", "sqlite-bundled"] }
 
 # Redis
 redis = { version = "0.24", features = ["tokio-comp"] }
