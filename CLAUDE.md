@@ -3,20 +3,24 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
-This is a QR Code API service built in Go using the Gin framework. It provides QR code generation with premium features like custom colors, logos, and analytics. The project includes user management, rate limiting, and Stripe integration for subscription plans.
+This is a QR Code API service built in Rust using the Axum framework. It provides QR code generation with premium features like custom colors, logos, and analytics. The project includes user management, rate limiting, and Stripe integration for subscription plans.
 
 ## Architecture
-- **Backend**: Go API server (qr_api_backend.go) using Gin framework
-- **Database**: SQLite for user data and QR code metadata 
+- **Backend**: Rust API server using Axum framework (async/await)
+- **Database**: SQLite with SQLx for type-safe queries
 - **Cache**: Redis for usage tracking and rate limiting
 - **Frontend**: Single HTML landing page with embedded JavaScript
 - **Payment**: Stripe integration for subscription management
-- **Deployment**: Docker-based with nginx reverse proxy
+- **Deployment**: Docker-based with nginx reverse proxy, optimized for 1GB RAM
 
 ## Core Components
 
-### API Structure (qr_api_backend.go)
-- Main application struct (`App`) manages database, Redis, and rate limiters
+### API Structure (Rust modules)
+- **main.rs**: Application setup with Axum router and shared state
+- **handlers.rs**: HTTP request handlers for all endpoints
+- **models.rs**: Data structures with Serde serialization
+- **database.rs**: SQLite operations with SQLx for type safety
+- **AppState**: Shared state managing SQLite pool and Redis client
 - User management with API key authentication via `X-API-Key` header
 - Tiered pricing plans: free (100), starter (2500), pro (10000), business (100000) QR codes/month
 - Premium features gated by plan level (custom colors for Pro+, logos for Pro+)
@@ -36,24 +40,25 @@ This is a QR Code API service built in Go using the Gin framework. It provides Q
 
 ### Building and Running
 ```bash
-# Build the Go application
-go build -o qr-api qr_api_backend.go
+# Build the Rust application
+cargo build --release
 
 # Run locally (requires Redis and SQLite)
-./qr-api
+./target/release/qr-api
 
 # Using Docker (recommended)
 docker-compose up -d
 ```
 
 ### Dependencies
-The project uses these key Go modules:
-- `github.com/gin-gonic/gin` - Web framework
-- `github.com/go-redis/redis/v8` - Redis client
-- `github.com/skip2/go-qrcode` - QR code generation
-- `github.com/stripe/stripe-go/v74` - Stripe payments
-- `github.com/mattn/go-sqlite3` - SQLite driver
-- `golang.org/x/time/rate` - Rate limiting
+The project uses these key Rust crates:
+- `axum` - Modern async web framework
+- `tokio` - Async runtime
+- `sqlx` - Async SQL toolkit with compile-time checked queries
+- `redis` - Redis client with async support
+- `qrcode` - QR code generation
+- `serde` - Serialization framework
+- `stripe-rust` - Stripe API integration
 
 ### Environment Variables
 Required environment variables (typically in .env file):

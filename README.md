@@ -70,26 +70,34 @@ make info          # Informações do ambiente
 make help          # Lista todos os comandos
 ```
 
-## 🏗️ Arquitetura
+## 🦀 Arquitetura
 
 ### Serviços
-- **qr-api**: API principal em Go (porta 8080)
+- **qr-api**: API principal em Rust (porta 8080)
 - **redis**: Cache e rate limiting (porta 6379)  
 - **nginx**: Reverse proxy opcional (porta 80/443)
 
 ### Estrutura de arquivos
 ```
 QR-code_generator/
-├── qr_api_backend.go      # Código principal da API
-├── landing_page.html      # Página inicial
-├── docker-compose.yml     # Configuração dos serviços
-├── Dockerfile            # Imagem da aplicação
-├── .env                  # Variáveis de ambiente
-├── Makefile             # Comandos de desenvolvimento
-├── data/                # Banco SQLite (criado automaticamente)
-├── logs/                # Logs da aplicação  
-├── backups/             # Backups do banco
-└── nginx/               # Configuração do nginx
+├── src/                  # Código fonte Rust
+│   ├── main.rs          # Entrada principal
+│   ├── handlers.rs      # Handlers HTTP
+│   ├── models.rs        # Estruturas de dados
+│   ├── database.rs      # Camada SQLite
+│   ├── qr_service.rs    # Geração de QR codes
+│   ├── redis_client.rs  # Cliente Redis
+│   └── auth.rs          # Autenticação
+├── Cargo.toml           # Dependências Rust
+├── landing_page.html    # Página inicial
+├── docker-compose.yml   # Configuração dos serviços
+├── Dockerfile           # Imagem da aplicação
+├── .env                 # Variáveis de ambiente
+├── Makefile            # Comandos de desenvolvimento
+├── data/               # Banco SQLite (criado automaticamente)
+├── logs/               # Logs da aplicação  
+├── backups/            # Backups do banco
+└── nginx/              # Configuração do nginx
 ```
 
 ## 🔧 Configuração

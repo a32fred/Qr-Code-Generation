@@ -1,60 +1,59 @@
-# Dockerfile para desenvolvimento local
-FROM golang:1.21 AS builder
+# Rust optimized Dockerfile for 1GB RAM VPS
+FROM rust:1.75-slim as builder
 
 WORKDIR /app
 
-# Instalar dependências do sistema
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    gcc \
-    libc6-dev \
+    pkg-config \
     libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar arquivos de módulo Go
-COPY go.mod ./
-RUN go mod download
+# Copy dependency files first for better caching
+COPY Cargo.toml Cargo.lock ./
 
-# Copiar código fonte
-COPY . .
+# Create dummy main.rs to build dependencies
+RUN mkdir src && echo "fn main() {}" > src/main.rs
 
-# Build da aplicação
-RUN CGO_ENABLED=1 GOOS=linux go build \
-    -ldflags="-w -s" \
-    -a -installsuffix cgo \
-    -o main ./qr_api_backend.go
+# Build dependencies (this layer will be cached)
+RUN cargo build --release --locked && rm -rf src
 
-# Estágio final - imagem Ubuntu
-FROM ubuntu:22.04
+# Copy source code
+COPY src ./src
 
-# Instalar dependências
+# Build the actual application
+RUN cargo build --release --locked
+
+# Runtime stage - minimal image
+FROM debian:bookworm-slim
+
+# Install runtime dependencies
 RUN apt-get update && apt-get install -y \
     ca-certificates \
-    sqlite3 \
-    tzdata \
-    wget \
+    libsqlite3-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Criar usuário não-root
-RUN groupadd -g 1001 app && \
-    useradd -r -u 1001 -g app app
+# Create app user
+RUN useradd -r -s /bin/false -m -d /app qrapi
 
 WORKDIR /app
 
-# Copiar binário
-COPY --from=builder /app/main .
-COPY --from=builder /app/landing_page.html ./index.html
+# Copy binary from builder
+COPY --from=builder /app/target/release/qr-api ./qr-api
 
-# Criar diretórios necessários
-RUN mkdir -p data logs && chown -R app:app /app
+# Copy static files
+COPY landing_page.html ./index.html
 
-# Mudar para usuário não-root
-USER app
+# Create directories and set permissions
+RUN mkdir -p data logs && \
+    chown -R qrapi:qrapi /app
+
+USER qrapi
 
 EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1
+    CMD curl -f http://localhost:8080/ || exit 1
 
-CMD ["./main"]
+CMD ["./qr-api"]
