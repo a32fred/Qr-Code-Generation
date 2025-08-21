@@ -41,6 +41,10 @@ def init_db():
 
 @app.route('/')
 def home():
+    return send_file('landing_page.html')
+
+@app.route('/api/')
+def api_info():
     return jsonify({
         "service": "QR Code API",
         "version": "1.0",
