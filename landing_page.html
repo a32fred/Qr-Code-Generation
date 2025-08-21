@@ -26,13 +26,27 @@
                 <div class="flex items-center">
                     <h1 class="text-2xl font-bold text-primary">QR API</h1>
                 </div>
-                <div class="flex space-x-4">
+                <div class="hidden md:flex space-x-4">
                     <a href="#pricing" class="text-gray-600 hover:text-primary">Pricing</a>
                     <a href="#docs" class="text-gray-600 hover:text-primary">Docs</a>
                     <button onclick="getAPIKey()" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary">
                         Get API Key
                     </button>
                 </div>
+                <div class="md:hidden">
+                    <button onclick="toggleMenu()" class="text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="mobileMenu" class="hidden md:hidden pb-4">
+                <a href="#pricing" class="block py-2 text-gray-600 hover:text-primary">Pricing</a>
+                <a href="#docs" class="block py-2 text-gray-600 hover:text-primary">Docs</a>
+                <button onclick="getAPIKey()" class="w-full mt-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary">
+                    Get API Key
+                </button>
             </div>
         </div>
     </nav>
@@ -40,13 +54,13 @@
     <!-- Hero Section -->
     <section class="bg-gradient-to-r from-primary to-secondary text-white py-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-5xl font-bold mb-6">The Fastest QR Code API</h1>
-            <p class="text-xl mb-8 opacity-90">Generate custom QR codes with logos, colors, and analytics. Start free!</p>
+            <h1 class="text-3xl md:text-5xl font-bold mb-6">The Fastest QR Code API</h1>
+            <p class="text-lg md:text-xl mb-8 opacity-90">Generate custom QR codes with logos, colors, and analytics. Start free!</p>
             
             <!-- Live Demo -->
-            <div class="bg-white bg-opacity-10 rounded-lg p-8 max-w-2xl mx-auto">
+            <div class="bg-white bg-opacity-10 rounded-lg p-4 md:p-8 max-w-2xl mx-auto">
                 <h3 class="text-lg font-semibold mb-4">Try it now:</h3>
-                <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex flex-col gap-4">
                     <input 
                         type="text" 
                         id="demoInput" 
@@ -70,7 +84,7 @@
     <section class="py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center mb-12">Why Choose QR API?</h2>
-            <div class="grid md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="text-center">
                     <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                         ⚡
@@ -100,7 +114,7 @@
     <section id="pricing" class="bg-gray-100 py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center mb-12">Simple, Transparent Pricing</h2>
-            <div class="grid md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Free -->
                 <div class="bg-white rounded-lg p-6 border-2 border-gray-200">
                     <h3 class="text-xl font-bold mb-2">Free</h3>
@@ -112,7 +126,7 @@
                         <li>❌ No analytics</li>
                         <li>❌ No logos</li>
                     </ul>
-                    <button onclick="getAPIKey()" class="w-full bg-gray-200 text-gray-800 py-2 rounded-lg">
+                    <button onclick="selectPlan('free')" class="w-full bg-gray-200 text-gray-800 py-2 rounded-lg">
                         Get Started
                     </button>
                 </div>
@@ -128,7 +142,7 @@
                         <li>✅ Basic analytics</li>
                         <li>❌ No logos</li>
                     </ul>
-                    <button class="w-full bg-primary text-white py-2 rounded-lg">
+                    <button onclick="selectPlan('starter')" class="w-full bg-primary text-white py-2 rounded-lg">
                         Choose Plan
                     </button>
                 </div>
@@ -145,7 +159,7 @@
                         <li>✅ Advanced analytics</li>
                         <li>✅ Priority support</li>
                     </ul>
-                    <button class="w-full bg-primary text-white py-2 rounded-lg">
+                    <button onclick="selectPlan('pro')" class="w-full bg-primary text-white py-2 rounded-lg">
                         Choose Plan
                     </button>
                 </div>
@@ -161,7 +175,7 @@
                         <li>✅ Webhook notifications</li>
                         <li>✅ White-label option</li>
                     </ul>
-                    <button class="w-full bg-primary text-white py-2 rounded-lg">
+                    <button onclick="selectPlan('business')" class="w-full bg-primary text-white py-2 rounded-lg">
                         Choose Plan
                     </button>
                 </div>
@@ -174,7 +188,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center mb-12">API Documentation</h2>
             
-            <div class="grid lg:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Code Example -->
                 <div>
                     <h3 class="text-xl font-semibold mb-4">Quick Start</h3>
@@ -283,19 +297,63 @@ curl -X POST https://qrapi.dev/api/generate \
             resultDiv.innerHTML = '<div class="text-center">Generating QR code...</div>';
 
             try {
-                // For demo, we'll use a simple QR generation (you'd use your API here)
-                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(input)}`;
+                // Create a demo user first if needed
+                if (!window.demoApiKey) {
+                    const registerResponse = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const userData = await registerResponse.json();
+                    window.demoApiKey = userData.api_key;
+                }
                 
-                resultDiv.innerHTML = `
-                    <div class="text-center">
-                        <img src="${qrUrl}" alt="QR Code" class="mx-auto mb-4 border rounded-lg">
-                        <p class="text-sm opacity-75">QR Code for: ${input}</p>
-                        <p class="text-xs opacity-50 mt-2">This is a demo. Get your API key for full features!</p>
-                    </div>
-                `;
+                // Generate QR with our API
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': window.demoApiKey
+                    },
+                    body: JSON.stringify({
+                        data: input,
+                        size: 256
+                    })
+                });
+                
+                const qrData = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="text-center">
+                            <img src="data:image/png;base64,${qrData.qr_code}" alt="QR Code" class="mx-auto mb-4 border rounded-lg">
+                            <p class="text-sm opacity-75">QR Code for: ${input}</p>
+                            <a href="data:image/png;base64,${qrData.qr_code}" download="qrcode.png" class="inline-block mt-2 bg-white bg-opacity-20 px-4 py-2 rounded-lg hover:bg-opacity-30 transition-all">
+                                📥 Download PNG
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="text-center text-red-300">Error: ${qrData.error}</div>`;
+                }
             } catch (error) {
-                resultDiv.innerHTML = '<div class="text-center text-red-300">Error generating QR code</div>';
+                resultDiv.innerHTML = '<div class="text-center text-red-300">Error generating QR code: ' + error.message + '</div>';
             }
+        }
+
+        function selectPlan(plan) {
+            if (plan === 'free') {
+                getAPIKey();
+            } else {
+                alert(`Selected ${plan} plan! This would redirect to payment in a real implementation.`);
+            }
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
         }
 
         // Generate demo QR on page load
