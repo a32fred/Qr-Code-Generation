@@ -7,7 +7,7 @@ WORKDIR /app
 RUN apk add --no-cache git gcc musl-dev sqlite-dev
 
 # Copiar arquivos de módulo Go
-COPY go.mod go.sum ./
+COPY go.mod ./
 RUN go mod download
 
 # Copiar código fonte
