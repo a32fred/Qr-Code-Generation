@@ -1,10 +1,15 @@
 # Dockerfile para desenvolvimento local
-FROM golang:1.21-alpine AS builder
+FROM golang:1.21 AS builder
 
 WORKDIR /app
 
 # Instalar dependências do sistema
-RUN apk add --no-cache git gcc musl-dev sqlite-dev
+RUN apt-get update && apt-get install -y \
+    git \
+    gcc \
+    libc6-dev \
+    libsqlite3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copiar arquivos de módulo Go
 COPY go.mod ./
