@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR API - Fastest QR Code API</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#1E40AF'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-primary">QR API</h1>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#pricing" class="text-gray-600 hover:text-primary">Pricing</a>
+                    <a href="#docs" class="text-gray-600 hover:text-primary">Docs</a>
+                    <button onclick="getAPIKey()" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary">
+                        Get API Key
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-primary to-secondary text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-5xl font-bold mb-6">The Fastest QR Code API</h1>
+            <p class="text-xl mb-8 opacity-90">Generate custom QR codes with logos, colors, and analytics. Start free!</p>
+            
+            <!-- Live Demo -->
+            <div class="bg-white bg-opacity-10 rounded-lg p-8 max-w-2xl mx-auto">
+                <h3 class="text-lg font-semibold mb-4">Try it now:</h3>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <input 
+                        type="text" 
+                        id="demoInput" 
+                        placeholder="Enter text or URL..." 
+                        class="flex-1 px-4 py-2 rounded-lg text-gray-800"
+                        value="https://github.com"
+                    >
+                    <button 
+                        onclick="generateDemo()" 
+                        class="bg-white text-primary px-6 py-2 rounded-lg font-semibold hover:bg-gray-100"
+                    >
+                        Generate QR
+                    </button>
+                </div>
+                <div id="demoResult" class="mt-6"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-12">Why Choose QR API?</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        ⚡
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Lightning Fast</h3>
+                    <p class="text-gray-600">Generate QR codes in under 100ms. Our optimized API delivers instant results.</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        🎨
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Fully Customizable</h3>
+                    <p class="text-gray-600">Colors, logos, sizes, formats. Make QR codes that match your brand.</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        📊
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Built-in Analytics</h3>
+                    <p class="text-gray-600">Track scans, locations, and performance with detailed analytics.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="bg-gray-100 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-12">Simple, Transparent Pricing</h2>
+            <div class="grid md:grid-cols-4 gap-6">
+                <!-- Free -->
+                <div class="bg-white rounded-lg p-6 border-2 border-gray-200">
+                    <h3 class="text-xl font-bold mb-2">Free</h3>
+                    <p class="text-3xl font-bold text-primary mb-4">$0<span class="text-lg font-normal">/month</span></p>
+                    <ul class="space-y-2 mb-6">
+                        <li>✅ 100 QR codes/month</li>
+                        <li>✅ Basic customization</li>
+                        <li>✅ PNG format</li>
+                        <li>❌ No analytics</li>
+                        <li>❌ No logos</li>
+                    </ul>
+                    <button onclick="getAPIKey()" class="w-full bg-gray-200 text-gray-800 py-2 rounded-lg">
+                        Get Started
+                    </button>
+                </div>
+
+                <!-- Starter -->
+                <div class="bg-white rounded-lg p-6 border-2 border-gray-200">
+                    <h3 class="text-xl font-bold mb-2">Starter</h3>
+                    <p class="text-3xl font-bold text-primary mb-4">$5<span class="text-lg font-normal">/month</span></p>
+                    <ul class="space-y-2 mb-6">
+                        <li>✅ 2,500 QR codes/month</li>
+                        <li>✅ Custom colors</li>
+                        <li>✅ Multiple formats</li>
+                        <li>✅ Basic analytics</li>
+                        <li>❌ No logos</li>
+                    </ul>
+                    <button class="w-full bg-primary text-white py-2 rounded-lg">
+                        Choose Plan
+                    </button>
+                </div>
+
+                <!-- Pro -->
+                <div class="bg-white rounded-lg p-6 border-2 border-primary transform scale-105">
+                    <div class="bg-primary text-white text-sm px-3 py-1 rounded-full inline-block mb-2">Most Popular</div>
+                    <h3 class="text-xl font-bold mb-2">Pro</h3>
+                    <p class="text-3xl font-bold text-primary mb-4">$15<span class="text-lg font-normal">/month</span></p>
+                    <ul class="space-y-2 mb-6">
+                        <li>✅ 10,000 QR codes/month</li>
+                        <li>✅ Custom logos</li>
+                        <li>✅ All formats (PNG, SVG, PDF)</li>
+                        <li>✅ Advanced analytics</li>
+                        <li>✅ Priority support</li>
+                    </ul>
+                    <button class="w-full bg-primary text-white py-2 rounded-lg">
+                        Choose Plan
+                    </button>
+                </div>
+
+                <!-- Business -->
+                <div class="bg-white rounded-lg p-6 border-2 border-gray-200">
+                    <h3 class="text-xl font-bold mb-2">Business</h3>
+                    <p class="text-3xl font-bold text-primary mb-4">$50<span class="text-lg font-normal">/month</span></p>
+                    <ul class="space-y-2 mb-6">
+                        <li>✅ 100,000 QR codes/month</li>
+                        <li>✅ Everything in Pro</li>
+                        <li>✅ Bulk generation</li>
+                        <li>✅ Webhook notifications</li>
+                        <li>✅ White-label option</li>
+                    </ul>
+                    <button class="w-full bg-primary text-white py-2 rounded-lg">
+                        Choose Plan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Documentation -->
+    <section id="docs" class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-12">API Documentation</h2>
+            
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Code Example -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Quick Start</h3>
+                    <div class="bg-gray-900 text-green-400 p-6 rounded-lg overflow-x-auto">
+                        <pre><code># Get your API key
+curl -X POST https://qrapi.dev/api/register
+
+# Generate a QR code
+curl -X POST https://qrapi.dev/api/generate \
+  -H "X-API-Key: your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "data": "https://example.com",
+    "size": 512,
+    "color": "#3B82F6",
+    "format": "png"
+  }'</code></pre>
+                    </div>
+                </div>
+
+                <!-- Parameters -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Parameters</h3>
+                    <div class="space-y-4">
+                        <div class="border-l-4 border-primary pl-4">
+                            <h4 class="font-semibold">data</h4>
+                            <p class="text-gray-600">The text or URL to encode (required)</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h4 class="font-semibold">size</h4>
+                            <p class="text-gray-600">Size in pixels (default: 256)</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h4 class="font-semibold">color</h4>
+                            <p class="text-gray-600">Foreground color (hex, Pro+)</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h4 class="font-semibold">bg_color</h4>
+                            <p class="text-gray-600">Background color (hex, Pro+)</p>
+                        </div>
+                        <div class="border-l-4 border-primary pl-4">
+                            <h4 class="font-semibold">logo</h4>
+                            <p class="text-gray-600">Base64 encoded logo (Pro+)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Example -->
+            <div class="mt-8">
+                <h3 class="text-xl font-semibold mb-4">Response</h3>
+                <div class="bg-gray-900 text-green-400 p-6 rounded-lg">
+                    <pre><code>{
+  "qr_code": "iVBORw0KGgoAAAANSUhEUgAA...", // base64 encoded image
+  "qr_url": "https://qrapi.dev/qr/abc123",    // Direct URL
+  "analytics": "https://qrapi.dev/analytics/abc123" // Analytics URL
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p>&copy; 2025 QR API. Built with ❤️ for developers.</p>
+            <div class="mt-4 space-x-4">
+                <a href="#" class="text-gray-400 hover:text-white">Privacy</a>
+                <a href="#" class="text-gray-400 hover:text-white">Terms</a>
+                <a href="#" class="text-gray-400 hover:text-white">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        async function getAPIKey() {
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert(`Your API Key: ${data.api_key}\n\nSave this key securely! You get ${data.limit} free QR codes per month.`);
+                } else {
+                    alert('Error creating API key. Please try again.');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        async function generateDemo() {
+            const input = document.getElementById('demoInput').value;
+            const resultDiv = document.getElementById('demoResult');
+            
+            if (!input.trim()) {
+                alert('Please enter some text or URL');
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="text-center">Generating QR code...</div>';
+
+            try {
+                // For demo, we'll use a simple QR generation (you'd use your API here)
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(input)}`;
+                
+                resultDiv.innerHTML = `
+                    <div class="text-center">
+                        <img src="${qrUrl}" alt="QR Code" class="mx-auto mb-4 border rounded-lg">
+                        <p class="text-sm opacity-75">QR Code for: ${input}</p>
+                        <p class="text-xs opacity-50 mt-2">This is a demo. Get your API key for full features!</p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="text-center text-red-300">Error generating QR code</div>';
+            }
+        }
+
+        // Generate demo QR on page load
+        window.onload = function() {
+            generateDemo();
+        }
+    </script>
+</body>
+</html>

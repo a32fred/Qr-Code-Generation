@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # QR API Application
+  qr-api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: qr-api-app
+    ports:
+      - "8080:8080"
+    environment:
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_demo_key}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_demo_secret}
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=sqlite:///app/data/qrapi.db
+      - GIN_MODE=${GIN_MODE:-debug}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - qr-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: qr-redis
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru --save 60 1 --loglevel warning
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    restart: unless-stopped
+    networks:
+      - qr-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  # Nginx Reverse Proxy (opcional para desenvolvimento)
+  nginx:
+    image: nginx:alpine
+    container_name: qr-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - qr-api
+    restart: unless-stopped
+    networks:
+      - qr-network
+    profiles:
+      - production
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  qr-network:
+    driver: bridge

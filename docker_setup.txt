@@ -1,0 +1,201 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  qr-api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - redis
+    restart: unless-stopped
+    mem_limit: 300m
+    cpus: 0.7
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --maxmemory 100mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    mem_limit: 120m
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - qr-api
+    restart: unless-stopped
+    mem_limit: 50m
+
+volumes:
+  redis_data:
+
+---
+# Dockerfile
+FROM golang:1.21-alpine AS builder
+
+WORKDIR /app
+
+# Install dependencies
+RUN apk add --no-cache git
+
+# Copy go mod files
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build binary
+RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o main .
+
+# Final stage
+FROM alpine:latest
+
+# Install ca-certificates and sqlite
+RUN apk --no-cache add ca-certificates sqlite
+
+WORKDIR /root/
+
+# Copy binary from builder
+COPY --from=builder /app/main .
+
+# Create data directory
+RUN mkdir -p /app/data
+
+EXPOSE 8080
+
+CMD ["./main"]
+
+---
+# nginx.conf
+events {
+    worker_connections 1024;
+}
+
+http {
+    upstream qr_api {
+        server qr-api:8080;
+    }
+
+    # Rate limiting
+    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+    limit_req_zone $binary_remote_addr zone=register:10m rate=1r/m;
+
+    server {
+        listen 80;
+        server_name your-domain.com;
+
+        # Redirect HTTP to HTTPS
+        return 301 https://$server_name$request_uri;
+    }
+
+    server {
+        listen 443 ssl http2;
+        server_name your-domain.com;
+
+        # SSL configuration
+        ssl_certificate /etc/nginx/ssl/cert.pem;
+        ssl_certificate_key /etc/nginx/ssl/key.pem;
+        ssl_protocols TLSv1.2 TLSv1.3;
+
+        # Gzip compression
+        gzip on;
+        gzip_types text/plain application/json;
+
+        # API routes
+        location /api/register {
+            limit_req zone=register burst=3 nodelay;
+            proxy_pass http://qr_api;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /api/ {
+            limit_req zone=api burst=20 nodelay;
+            proxy_pass http://qr_api;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location / {
+            proxy_pass http://qr_api;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        # Health check
+        location /health {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
+        }
+    }
+}
+
+---
+# go.mod
+module qr-api
+
+go 1.21
+
+require (
+    github.com/gin-gonic/gin v1.9.1
+    github.com/go-redis/redis/v8 v8.11.5
+    github.com/mattn/go-sqlite3 v1.14.17
+    github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
+    github.com/stripe/stripe-go/v74 v74.30.0
+    golang.org/x/time v0.3.0
+)
+
+---
+# .env (exemplo)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+DOMAIN=qrapi.dev
+
+---
+# Makefile
+.PHONY: build run deploy
+
+build:
+	docker-compose build
+
+run:
+	docker-compose up -d
+
+deploy:
+	docker-compose down
+	docker-compose pull
+	docker-compose up -d --build
+	docker system prune -f
+
+logs:
+	docker-compose logs -f qr-api
+
+stop:
+	docker-compose down
+
+restart:
+	docker-compose restart qr-api
+
+backup:
+	docker cp qr-api_qr-api_1:/app/data ./backup-$(shell date +%Y%m%d)
+
+# SSL Setup (Let's Encrypt)
+ssl:
+	sudo certbot certonly --standalone -d your-domain.com
+	sudo cp /etc/letsencrypt/live/your-domain.com/fullchain.pem ./ssl/cert.pem
+	sudo cp /etc/letsencrypt/live/your-domain.com/privkey.pem ./ssl/key.pem
+	sudo chown $(USER):$(USER) ./ssl/*

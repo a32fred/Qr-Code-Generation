@@ -1,0 +1,60 @@
+# Binários
+qr-api
+main
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Dados e logs
+data/
+logs/
+backups/
+*.db
+*.log
+
+# Configuração sensível
+.env
+.env.local
+.env.production
+
+# Docker
+.docker/
+
+# Nginx logs
+nginx/logs/
+
+# Go modules
+vendor/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# SSL certificates (se existirem)
+*.pem
+*.key
+*.crt
+ssl/
+
+# Build artifacts
+dist/
+build/
