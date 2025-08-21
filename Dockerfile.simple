@@ -1,0 +1,19 @@
+# Dockerfile simples - single stage
+FROM golang:1.21
+
+WORKDIR /app
+
+# Copiar todos os arquivos
+COPY . .
+
+# Baixar dependências e compilar
+RUN go mod download && \
+    CGO_ENABLED=1 go build -o qr-api ./qr_api_backend.go
+
+# Criar diretórios
+RUN mkdir -p data logs
+
+EXPOSE 8080
+
+# Executar aplicação
+CMD ["./qr-api"]

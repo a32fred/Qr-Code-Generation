@@ -5,7 +5,7 @@ services:
   qr-api:
     build: 
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.simple
     container_name: qr-api-app
     ports:
       - "8080:8080"
